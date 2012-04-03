@@ -52,9 +52,52 @@ def stripe_pay_ship_process_form(request, contact, working_cart, payment_module,
 
 
 def pay_ship_info(request):
-    return payship.base_pay_ship_info(request, stripe, stripe_pay_ship_process_form, "satchmo_stripe/pay_ship.html")
+
+    template = 'satchmo_stripe/pay_ship.html'
+    payment_module = stripe
+    form_handler = payship.credit_pay_ship_process_form
+    result = payship.pay_ship_info_verify(request, payment_module)
+
+    if not result[0]:
+        return result[1]
+
+    contact = result[1]
+    working_cart = result[2]
+
+    success, form = form_handler(request, contact, working_cart, payment_module)
+    if success:
+        return form
+
+    template = lookup_template(payment_module, template)
+    live = gateway_live(payment_module)
+
+    ctx = RequestContext(request, {
+        'form': form,
+        'PAYMENT_LIVE': live,        
+        })
+
+    return render_to_response(template, context_instance=ctx)
+
+    #return payship.base_pay_ship_info(request, stripe, stripe_pay_ship_process_form, "satchmo_stripe/pay_ship.html")
 pay_ship_info = never_cache(pay_ship_info)
 
 def confirm_info(request):
-    return confirm.credit_confirm_info(request, stripe)
+    payment_module = stripe
+    controller = confirm.ConfirmController(request, payment_module)
+
+    if not controller.sanity_check():
+        return controller.response
+
+    live = gateway_live(payment_module)
+
+    default_view_tax = config_value('TAX', 'DEFAULT_VIEW_TAX')
+
+    ctx = {
+            'PAYMENT_LIVE': live
+        }
+
+    controller.extra_context = ctx
+    controller.confirm()
+    return controller.response
+
 confirm_info = never_cache(confirm_info)
