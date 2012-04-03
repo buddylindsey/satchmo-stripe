@@ -1,0 +1,50 @@
+{% extends "satchmo_stripe/base_pay_ship.html" %}
+{% load i18n %}
+{# credit card pay_ship version - we just need to collect CC info #}
+
+{% block payment_table %}
+    <div id="stripe_error">
+    </div>
+    <tr><td><h4>{% trans "Payment Information" %}</h4></td></tr>
+    {% if not PAYMENT_LIVE %}
+    <tr><td valign="top"><b>TEST MODE</b></td><td><i>Use Visa 4111111111111111 for CC#<br/>any future date for expiration<br/>any 3 digit CCV</i></td></tr>
+    {% endif %}
+
+    <tr><td><label for="id_credit_type">{% trans "Type of credit card" %}</label></td> <td>{{ form.credit_type }}</td></tr>
+
+    <tr><td><label for="id_credit_number">{% trans "Credit card number" %}</label></td><td><input autocomplete="off" id="id_credit_number" type="text" name="" maxlength="20" /></td></tr>
+
+    <tr><td><label for="id_month_expires">{% trans "Expiration date" %}</label><label for="id_year_expires"></label></td><td>
+   <select name="" id="id_month_expires">
+<option value="1">01</option>
+<option value="2">02</option>
+<option value="3">03</option>
+<option value="4">04</option>
+<option value="5">05</option>
+<option value="6">06</option>
+<option value="7">07</option>
+<option value="8">08</option>
+<option value="9">09</option>
+<option value="10">10</option>
+<option value="11">11</option>
+<option value="12">12</option>
+</select> <select name="" id="id_year_expires">
+<option value="2012">2012</option>
+<option value="2013">2013</option>
+<option value="2014">2014</option>
+<option value="2015">2015</option>
+<option value="2016">2016</option>
+<option value="2017">2017</option>
+<option value="2018">2018</option>
+<option value="2019">2019</option>
+<option value="2020">2020</option>
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+</select>         
+    </td></tr>
+
+    <tr><td><label for="id_ccv">{% trans "CCV" %}</label></td><td><input autocomplete="off" id="id_ccv" type="text" name="" maxlength="4" /></td></tr>
+
+    {{ form.stripe_token }}
+
+{% endblock %}
