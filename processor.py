@@ -25,7 +25,6 @@ class PaymentProcessor(BasePaymentProcessor):
         else:
             order = self.order
 
-        import pdb; pdb.set_trace
         if order.paid_in_full:
             self.log_extra('%s is paid in full, no capture attempted.', order)
             results = ProcessorResult(self.key, True, _("No charge needed, paid in full."))
