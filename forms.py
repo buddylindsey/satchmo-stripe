@@ -9,6 +9,8 @@ from satchmo_store.contact.models import Contact
 from satchmo_store.shop.models import Cart, Order, OrderPayment
 from models import StripeToken
 
+from signals_ahoy.signals import form_presave, form_postsave
+
 log = logging.getLogger('payment.stripe.forms')
 
 class StripePayShipForm(SimplePayShipForm):
@@ -30,25 +32,27 @@ class StripePayShipForm(SimplePayShipForm):
             self.tempContact = None
         
     def clean_stripe_token(self):
-        if len(self.cleaned_data['payment_token']) == 0:
+        print('in clean method')
+        if len(self.cleaned_data['stripe_token']) == 0:
             raise forms.ValidationError(_('Invalid Stripe Token'))
 
         return self.cleaned_data['stripe_token']
 
     def save(self, request, cart, contact, payment_module, data=None):
         form_presave.send(StripePayShipForm, form=self)
-
+        print('after presave')
         if data is None:
             data = self.cleaned_data
         assert(data)
         super(StripePayShipForm, self).save(request, cart, contact, payment_module, data=data)
 
+        print('after super')
         if self.orderpayment:
+            print('in orderpayment')
             op = self.orderpayment.capture
             token = StripeToken(
                 orderpayment=op,
-                payment_token = data['stripe_token'],
-                display_cc = data['display_cc'])
+                payment_token = data['stripe_token'],)
             token.save()
             self.the_token = token
         form_postsave.send(StripePayShipForm, form=self)

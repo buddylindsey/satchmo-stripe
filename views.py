@@ -1,12 +1,16 @@
-from django.views.decorators.cache import never_cache
 from django import http
+from django.shortcuts import render_to_response
+from django.views.decorators.cache import never_cache
+from django.template import Context, RequestContext
+from django.template.loader import get_template
 
 from satchmo_store.shop.models import Cart
 from satchmo_store.shop.models import Order, OrderPayment
 from satchmo_utils.dynamic import lookup_url, lookup_template
 
-from livesettings import config_get_group
+from livesettings import config_get_group, config_value
 from payment.views import confirm, payship
+from payment.config import gateway_live
 from satchmo_stripe.forms import StripePayShipForm
 
 stripe = config_get_group('PAYMENT_SATCHMO_STRIPE')
@@ -52,10 +56,10 @@ def stripe_pay_ship_process_form(request, contact, working_cart, payment_module,
 
 
 def pay_ship_info(request):
-
+    print("in pay_ship_info")
     template = 'satchmo_stripe/pay_ship.html'
     payment_module = stripe
-    form_handler = payship.credit_pay_ship_process_form
+    form_handler = stripe_pay_ship_process_form
     result = payship.pay_ship_info_verify(request, payment_module)
 
     if not result[0]:
@@ -82,6 +86,7 @@ def pay_ship_info(request):
 pay_ship_info = never_cache(pay_ship_info)
 
 def confirm_info(request):
+    print("in confirm_info")
     payment_module = stripe
     controller = confirm.ConfirmController(request, payment_module)
 

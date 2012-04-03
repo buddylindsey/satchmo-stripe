@@ -42,6 +42,13 @@ config_register_list(
     StringValue(PAYMENT_GROUP,
         'API_KEY',
         description=_('The API KEY for stripe payment processor'),
+        help_text=_("Stripe Private API Key"),
+        default=""),
+
+    StringValue(PAYMENT_GROUP,
+        'TEST_API_KEY',
+        description=_("Stripe Private Test API Key"),
+        help_text=_("Stripe Private Test API Key"),
         default=""),
 
     MultipleStringValue(PAYMENT_GROUP,
