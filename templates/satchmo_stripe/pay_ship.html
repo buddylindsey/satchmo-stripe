@@ -10,8 +10,6 @@
     <tr><td valign="top"><b>TEST MODE</b></td><td><i>Use Visa 4111111111111111 for CC#<br/>any future date for expiration<br/>any 3 digit CCV</i></td></tr>
     {% endif %}
 
-    <tr><td><label for="id_credit_type">{% trans "Type of credit card" %}</label></td> <td>{{ form.credit_type }}</td></tr>
-
     <tr><td><label for="id_credit_number">{% trans "Credit card number" %}</label></td><td><input autocomplete="off" id="id_credit_number" type="text" name="" maxlength="20" /></td></tr>
 
     <tr><td><label for="id_month_expires">{% trans "Expiration date" %}</label><label for="id_year_expires"></label></td><td>

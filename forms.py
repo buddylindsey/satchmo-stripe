@@ -19,10 +19,8 @@ class StripePayShipForm(SimplePayShipForm):
     credit_type = forms.ChoiceField()
 
     def __init__(self, request, paymentmodule, *args, **kwargs):
-        creditchoices = paymentmodule.CREDITCHOICES.choice_values
         super(StripePayShipForm, self).__init__(request, paymentmodule, *args, **kwargs)
 
-        self.fields['credit_type'].choices = creditchoices
         self.tempCart = Cart.objects.from_request(request)
         self.the_token = None
 
