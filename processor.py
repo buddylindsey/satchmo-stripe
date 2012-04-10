@@ -17,8 +17,10 @@ class PaymentProcessor(BasePaymentProcessor):
 
         if live:
             stripe.api_key = self.settings.API_KEY.value
+            self.log_extra('used live api key')
         else:
             stripe.api_key = self.settings.TEST_API_KEY.value
+            self.log_extra('used test api key')
 
     def _get_payment_token(self, order):
         for payment in order.payments.order_by('-time_stamp'):
@@ -33,7 +35,7 @@ class PaymentProcessor(BasePaymentProcessor):
             stripe_token = stripe.Token.retrieve(token.payment_token)
             return not stripe_token.used
         except Exception, e:
-            print("Exception while lookup token %s: %s", token.stripe_token, e)
+            self.log_extra("Exception while lookup token %s: %s", token.stripe_token, e)
 
         return false
 
@@ -49,7 +51,7 @@ class PaymentProcessor(BasePaymentProcessor):
             amount = order.balance
 
         token = self._get_payment_token(order)
-
+        self.log_extra('%s is the token.', token)
         if not token:
             return ProcessorResult(self.key, False, _("No valid payment found, Please re-enter your payment information"))
 
@@ -73,6 +75,7 @@ class PaymentProcessor(BasePaymentProcessor):
             return ProcessorResult(self.key, True, _('Success'), payment)
         except stripe.InvalidRequestError, e:
             error_code = e.json_body.get('error', {}).get('type', '')
+            self.log_extra(error_code)
             payment = self.record_failure(amount=amount, transaction_id=token.stripe_token,reason_code=error_code, deatils=e.message)
 
         if not payment:

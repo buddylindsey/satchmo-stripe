@@ -16,7 +16,6 @@ log = logging.getLogger('payment.stripe.forms')
 class StripePayShipForm(SimplePayShipForm):
     stripe_token = forms.CharField(max_length=50, widget=forms.HiddenInput({"value":""}))
     credit_number = forms.CharField(required=False)
-    credit_type = forms.ChoiceField()
 
     def __init__(self, request, paymentmodule, *args, **kwargs):
         super(StripePayShipForm, self).__init__(request, paymentmodule, *args, **kwargs)
@@ -30,23 +29,18 @@ class StripePayShipForm(SimplePayShipForm):
             self.tempContact = None
         
     def clean_stripe_token(self):
-        print('in clean method')
         if len(self.cleaned_data['stripe_token']) == 0:
             raise forms.ValidationError(_('Invalid Stripe Token'))
-
         return self.cleaned_data['stripe_token']
 
     def save(self, request, cart, contact, payment_module, data=None):
         form_presave.send(StripePayShipForm, form=self)
-        print('after presave')
         if data is None:
             data = self.cleaned_data
         assert(data)
         super(StripePayShipForm, self).save(request, cart, contact, payment_module, data=data)
 
-        print('after super')
         if self.orderpayment:
-            print('in orderpayment')
             op = self.orderpayment.capture
             token = StripeToken(
                 orderpayment=op,

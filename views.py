@@ -13,6 +13,10 @@ from payment.views import confirm, payship
 from payment.config import gateway_live
 from satchmo_stripe.forms import StripePayShipForm
 
+import logging
+
+log = logging.getLogger("satchmo_stripe.views")
+
 stripe = config_get_group('PAYMENT_SATCHMO_STRIPE')
 
 def stripe_pay_ship_process_form(request, contact, working_cart, payment_module, allow_skip=True, *args, **kwargs):
@@ -21,7 +25,6 @@ def stripe_pay_ship_process_form(request, contact, working_cart, payment_module,
 
     if request.method == "POST":
         new_data = request.POST.copy()
-
         form = _get_form(request, payment_module, new_data, *args, **kwargs)
         if form.is_valid():
             data = form.cleaned_data
@@ -56,7 +59,6 @@ def stripe_pay_ship_process_form(request, contact, working_cart, payment_module,
 
 
 def pay_ship_info(request):
-    print("in pay_ship_info")
     template = 'satchmo_stripe/pay_ship.html'
     payment_module = stripe
     form_handler = stripe_pay_ship_process_form
@@ -86,7 +88,6 @@ def pay_ship_info(request):
 pay_ship_info = never_cache(pay_ship_info)
 
 def confirm_info(request):
-    print("in confirm_info")
     payment_module = stripe
     controller = confirm.ConfirmController(request, payment_module)
 
